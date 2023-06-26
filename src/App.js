@@ -1,28 +1,36 @@
-import { useState } from 'react';
-import logo from './logo.svg';
+import { useEffect, useState } from 'react';
 import './App.css';
 
 function App() {
-  const [reverse, setReverse] = useState(false);
-  const [contador, setContador] = useState(0);
-  const reverseClass = reverse ? 'reverse' : '';
+  const [counter, setCounter] = useState(0);
 
-  const handleClick = () => {
-    setContador((c) => c + 1);
-    setReverse(!reverse);
-  };
+  useEffect(() => {
+    console.log('componentDidUpdate');
+  });
+
+  useEffect(() => {
+    console.log('componentDidMount');
+
+    document.querySelector('h1').addEventListener('click', () => {
+      console.log('teste');
+    });
+
+    // trigger para componentWillUnMount, para limpar os listeners
+    return () => {
+      document.querySelector('h1').removeEventListener('click', () => {
+        console.log('teste');
+      });
+    };
+  }, []);
+
+  useEffect(() => {
+    console.log('componentDidUpdate com deps');
+  }, [counter]);
 
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className={`App-logo ${reverseClass}`} alt="logo" />
-
-        <h1>Contador está em: {contador}</h1>
-
-        <button type="button" onClick={handleClick}>
-          reverse {reverseClass}
-        </button>
-      </header>
+      <h1>Contador: {counter}</h1>
+      <button onClick={() => setCounter((prev) => ++prev)}>+</button>
     </div>
   );
 }
