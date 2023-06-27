@@ -1,35 +1,56 @@
+/* eslint-disable prettier/prettier */
 import P from 'prop-types';
-import React, { useCallback, useState } from 'react';
 import './App.css';
+import { useEffect, useState, useMemo } from 'react';
 
-const Button = React.memo(function Button({ handleClick }) {
-  console.log('Filho renderizou');
-  return (
-    <button type="button" onClick={() => handleClick(10)}>
-      +
-    </button>
-  );
-});
-
-function App() {
-  const [counter, setCounter] = useState(0);
-
-  const increment = useCallback((num) => {
-    setCounter((prev) => prev + num);
-  }, []);
-
-  console.log('Pai renderizou');
+const Post = ({ post }) => {
+  console.log('renderizou filho');
 
   return (
-    <div className="App">
-      <h1>Contador: {counter}</h1>
-      <Button handleClick={increment} />
+    <div className="post">
+      <h1>{post.title}</h1>
+      <p>{post.body}</p>
     </div>
   );
 }
 
-Button.propTypes = {
-  handleClick: P.func,
+function App() {
+  console.log('pai renderizou');
+
+  const [posts, setPosts] = useState([]);
+  const [value, setValue] = useState('');
+
+  useEffect(() => {
+    fetch('https://jsonplaceholder.typicode.com/posts')
+      .then((r) => r.json())
+      .then((r) => setPosts(r));
+  }, []);
+
+  return (
+    <div className="App">
+      <p>
+        <input type='search' value={value} onChange={(e) => setValue(e.target.value)} />
+      </p>
+      {
+      useMemo(() => {
+        return (
+          posts.length > 0 && posts.map((post) => {
+            return <Post post={post} key={post.id} />;
+          })
+        )
+      }, [posts])}
+
+      {posts.length <= 0 && <h1> Sem Posts por Enquanto</h1>}
+    </div>
+  );
+}
+
+Post.propTypes = {
+  post: P.shape({
+    id: P.number,
+    title: P.string,
+    body: P.string
+  })
 };
 
 export default App;
