@@ -1,0 +1,16 @@
+import { useContext } from 'react';
+import { GlobalContext } from '../../contexts/app';
+
+/* eslint-disable-next-line */
+export const H1 = ({ children }) => {
+  const theContext = useContext(GlobalContext);
+  const {
+    contextState: { title, counter },
+  } = theContext;
+
+  return (
+    <h1>
+      {title} / {counter}
+    </h1>
+  );
+};
