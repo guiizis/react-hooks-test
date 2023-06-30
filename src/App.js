@@ -1,39 +1,59 @@
 /* eslint-disable prettier/prettier */
-import { useReducer } from 'react';
 import './App.css';
+import { createContext, useContext, useReducer, useRef } from 'react';
 
+//data
 export const globalState = {
   title: 'o titulo do contexto',
   body: 'o body do contexto',
   counter: 0,
 };
 
-const reducer = (state, action) => {
+//actions
+export const actions = {
+  CHANGE_TITLE: 'CHANGE_TITLE'
+};
 
+export const reducer = (state, action) => {
   switch (action.type) {
-    case 'change':
-      console.log(action.payload);
-      return { ...state, title: 'change ' + action.payload };
-    case 'invert':
-      console.log('inverter');
-      return { ...state, title: state.title.split('').reverse().join('') };
-  }
+    case actions.CHANGE_TITLE:
+      return { ...state, title: action.payload }
+  };
 
   return { ...state };
-}
+};
 
-function App() {
+//context
+export const Context = createContext()
+
+// eslint-disable-next-line react/prop-types
+export const AppContext = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, globalState);
-  const { counter, title, body } = state;
 
   return (
-    <div>
-      <h1>{title}</h1>
-      <p>{counter}</p>
-      <p>{body}</p>
-      <button onClick={() => dispatch({ type: 'change', payload: new Date().toLocaleDateString('pt-br') })}>click</button>
-      <button onClick={() => dispatch({ type: 'invert' })}>invert</button>
-    </div>
+    <Context.Provider value={{ state, dispatch }}>
+      {children}
+    </Context.Provider>
+  )
+};
+
+export const H1 = () => {
+  const { state, dispatch } = useContext(Context);
+  const inputRef = useRef();
+
+  return (
+    <>
+      <input type="text" ref={inputRef} onChange={() => dispatch({ type: actions.CHANGE_TITLE, payload: inputRef.current.value })} />
+      <h1>{state.title}</h1>
+    </>
+  );
+};
+
+function App() {
+  return (
+    <AppContext>
+      <H1 />
+    </AppContext>
   );
 }
 
