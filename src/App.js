@@ -1,59 +1,39 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable prettier/prettier */
+import { useEffect, useRef, useState } from 'react';
 import './App.css';
-import { createContext, useContext, useReducer, useRef } from 'react';
 
-//data
-export const globalState = {
-  title: 'o titulo do contexto',
-  body: 'o body do contexto',
-  counter: 0,
-};
+const useMyHook = (cb,  delay = 1000) => {
+  const savedCb = useRef();
 
-//actions
-export const actions = {
-  CHANGE_TITLE: 'CHANGE_TITLE'
-};
+  useEffect(() => {
+    savedCb.current = cb;
+  }, [cb]);
 
-export const reducer = (state, action) => {
-  switch (action.type) {
-    case actions.CHANGE_TITLE:
-      return { ...state, title: action.payload }
-  };
+  useEffect(() => {
+    const interval = setInterval(() => {
+      savedCb.current();
+    }, delay);
 
-  return { ...state };
-};
-
-//context
-export const Context = createContext()
-
-// eslint-disable-next-line react/prop-types
-export const AppContext = ({ children }) => {
-  const [state, dispatch] = useReducer(reducer, globalState);
-
-  return (
-    <Context.Provider value={{ state, dispatch }}>
-      {children}
-    </Context.Provider>
-  )
-};
-
-export const H1 = () => {
-  const { state, dispatch } = useContext(Context);
-  const inputRef = useRef();
-
-  return (
-    <>
-      <input type="text" ref={inputRef} onChange={() => dispatch({ type: actions.CHANGE_TITLE, payload: inputRef.current.value })} />
-      <h1>{state.title}</h1>
-    </>
-  );
+    return () => clearInterval(interval);
+  }, [delay]);
 };
 
 function App() {
+  const [counter, setCounter] = useState(0);
+  const [delay, setDelay] = useState(1000);
+  const [incrementor, setIncrementor] = useState(100);
+
+  useMyHook(()=> setCounter((c) => c + 1), delay);
+
   return (
-    <AppContext>
-      <H1 />
-    </AppContext>
+    <div>
+      <h1>{counter}</h1>
+      <h1>Delay {delay}</h1>
+      <button onClick={() =>  setDelay((d) => d +  incrementor)}> + {incrementor}</button>
+      <button onClick={() =>  setDelay((d) => d -  incrementor)}> - {incrementor}</button>
+      <input type="number" value={incrementor} onChange={(e) => setIncrementor(Number(e.target.value))}/>
+    </div>
   );
 }
 
