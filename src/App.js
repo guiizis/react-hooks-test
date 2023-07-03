@@ -35,6 +35,6 @@ function App() {
       <input type="number" value={incrementor} onChange={(e) => setIncrementor(Number(e.target.value))}/>
     </div>
   );
-}
+};
 
 export default App;
