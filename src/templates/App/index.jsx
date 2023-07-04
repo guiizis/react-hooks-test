@@ -4,12 +4,15 @@ import { useEffect, useRef, useState } from 'react';
 import './styles.css';
 import { PostsProvider } from '../../contexts/postProvider';
 import { Posts } from '../../components/Posts';
+import { CounterProvider } from '../../contexts/counterProvider';
 
 function App() {
   return (
-    <PostsProvider>
-      <Posts />
-    </PostsProvider>
+    <CounterProvider>
+      <PostsProvider>
+        <Posts />
+      </PostsProvider>
+    </CounterProvider>
   );
 };
 
