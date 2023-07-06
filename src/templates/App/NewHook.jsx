@@ -1,10 +1,34 @@
 /*eslint-disable */
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+const isEqual = (objA, objB) =>  {
+  return JSON.stringify(objA) === JSON.stringify(objB);
+}
 
 const useFetch = (url, options) => {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const urlRef = useRef(url);
+  const optionsRef = useRef(options);
+
+  useEffect(() => {
+    let changed = false;
+
+    if (!isEqual(url, urlRef.current)) {
+      urlRef.current = url;
+      changed = true;
+    }
+    else if (!isEqual(url, optionsRef.current)) {
+      optionsRef.current = options;
+      changed = true;
+    }
+
+    // if(changed) {
+    //   setShouldLoad(c => !c)
+    // }
+  }, [url, options])
 
   useEffect(() => {
     console.log('effect ' + new Date().toLocaleDateString());
@@ -14,7 +38,7 @@ const useFetch = (url, options) => {
       await new Promise(r => setTimeout(r, 3000));
 
       try {
-        const result = await fetch(url, options);
+        const result = await fetch(urlRef.current, optionsRef.current);
         const resultJson = await result.json();
         setResult(resultJson);
         setLoading(false);
@@ -25,9 +49,9 @@ const useFetch = (url, options) => {
       };
     }
     fetchData();
-  }, [url])
+  }, [])
 
-  return [result, loading];
+  return [];
 }
 
 export const Home = () => {
@@ -39,6 +63,9 @@ export const Home = () => {
   });
   if (loading) {
     return <p>loading ...</p>
+  }
+  if (!loading && result) {
+    console.log(result)
   }
   return <h1>OI</h1>;
 };
