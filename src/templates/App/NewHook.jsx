@@ -1,10 +1,8 @@
-/*eslint-disable */
+import { useEffect, useRef, useState } from 'react';
 
-import { useEffect, useRef, useState } from "react";
-
-const isEqual = (objA, objB) =>  {
+const isObjectEqual = (objA, objB) => {
   return JSON.stringify(objA) === JSON.stringify(objB);
-}
+};
 
 const useFetch = (url, options) => {
   const [result, setResult] = useState(null);
@@ -16,56 +14,98 @@ const useFetch = (url, options) => {
   useEffect(() => {
     let changed = false;
 
-    if (!isEqual(url, urlRef.current)) {
+    if (!isObjectEqual(url, urlRef.current)) {
       urlRef.current = url;
       changed = true;
     }
-    else if (!isEqual(url, optionsRef.current)) {
+
+    if (!isObjectEqual(options, optionsRef.current)) {
       optionsRef.current = options;
       changed = true;
     }
 
-    // if(changed) {
-    //   setShouldLoad(c => !c)
-    // }
-  }, [url, options])
+    if (changed) {
+      setShouldLoad((s) => !s);
+    }
+  }, [url, options]);
 
   useEffect(() => {
-    console.log('effect ' + new Date().toLocaleDateString());
+    let wait = false;
+    const controller = new AbortController();
+    const signal = controller.signal;
+
     setLoading(true);
 
     const fetchData = async () => {
-      await new Promise(r => setTimeout(r, 3000));
+      await new Promise((r) => setTimeout(r, 1000));
 
       try {
-        const result = await fetch(urlRef.current, optionsRef.current);
-        const resultJson = await result.json();
-        setResult(resultJson);
-        setLoading(false);
-      }
-      catch (e) {
-        setLoading(false);
-        throw e;
-      };
-    }
-    fetchData();
-  }, [])
+        const response = await fetch(urlRef.current, {
+          signal,
+          ...optionsRef.current,
+        });
+        const jsonResult = await response.json();
 
-  return [];
-}
+        if (!wait) {
+          setResult(jsonResult);
+          setLoading(false);
+        }
+      } catch (e) {
+        if (!wait) {
+          setLoading(false);
+        }
+        console.log('MY ERROR:', e.message);
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      wait = true;
+      controller.abort();
+    };
+  }, [shouldLoad]);
+
+  return [result, loading];
+};
 
 export const Home = () => {
-  const [result, loading] = useFetch('https://jsonplaceholder.typicode.com/posts', {
-    method: 'GET',
-    headers: {
-      abc: 'abc'
-    }
-  });
+  const [postId, setPostId] = useState('');
+  const [result, loading] = useFetch(
+    'https://jsonplaceholder.typicode.com/posts/' + postId,
+    {
+      headers: {
+        abc: '1' + postId,
+      },
+    },
+  );
+
   if (loading) {
-    return <p>loading ...</p>
+    return <p>Loading...</p>;
   }
+
+  const handleClick = (id) => {
+    setPostId(id);
+  };
+
   if (!loading && result) {
-    console.log(result)
+    // 1234
+    return (
+      <div>
+        {result?.length > 0 ? (
+          result.map((p) => (
+            <div key={`post-${p.id}`} onClick={() => handleClick(p.id)}>
+              <p>{p.title}</p>
+            </div>
+          ))
+        ) : (
+          <div onClick={() => handleClick('')}>
+            <p>{result.title}</p>
+          </div>
+        )}
+      </div>
+    );
   }
-  return <h1>OI</h1>;
+
+  return <h1>Oi</h1>;
 };
