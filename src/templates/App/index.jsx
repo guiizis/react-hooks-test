@@ -12,7 +12,7 @@ function App() {
     <CounterProvider>
       <PostsProvider>
         <Home />
-        <Posts />
+        {/* <Posts /> */}
       </PostsProvider>
     </CounterProvider>
   );

@@ -1,58 +1,28 @@
-import { useCallback, useEffect, useState } from 'react';
-
-const useAsync = (asyncFunction, shouldRun) => {
-  const [result, setResult] = useState();
-  const [error, setError] = useState();
-  const [status, setStatus] = useState('idle');
-
-  const run = useCallback(() => {
-    setResult(null);
-    setError(null);
-    setStatus(null);
-
-    return asyncFunction()
-      .then((response) => {
-        setResult(response);
-        setStatus('settled');
-      })
-      .catch((error) => {
-        setError(error);
-        setStatus('error');
-      });
-  }, [asyncFunction]);
-
-  useEffect(() => {
-    if (shouldRun) {
-      run();
-    }
-  }, [run, shouldRun]);
-
-  return [run, result, error, status];
-};
-
-const fetchData = async () => {
-  const data = await fetch('https://jsonplaceholder.typicode.com/todos');
-  const dataJson = await data.json();
-  return dataJson;
-};
+import { useLayoutEffect, useRef, useState } from 'react';
 
 export const Home = () => {
-  const [posts, setPosts] = useState([]);
-  const [reFetchData, result, error, status] = useAsync(fetchData, true);
+  const [counted, setCounted] = useState([0, 1, 2, 3, 4]);
+  const divRef = useRef();
 
-  useEffect(() => {
-    reFetchData();
-  }, [reFetchData]);
+  const handleClick = () => {
+    setCounted((c) => [...c, Number(counted.slice(-1)) + 1]);
+  };
 
-  if (status === 'idle') {
-    return <pre>loading ...</pre>;
-  }
+  useLayoutEffect(() => {
+    divRef.current.scrollTop = divRef.current.scrollHeight;
+  }, []);
 
-  if (status === 'settled') {
-    return <pre>{JSON.stringify(result, null, 2)}</pre>;
-  }
-
-  if (status === 'error') {
-    return <pre>look an error: {error}</pre>;
-  }
+  return (
+    <>
+      <button onClick={handleClick}>Count {counted.slice(-1)}</button>
+      <div
+        ref={divRef}
+        style={{ height: '200px', width: '100px', overflow: 'scroll' }}
+      >
+        {counted.map((e) => {
+          return <p key={e}>{e}</p>;
+        })}
+      </div>
+    </>
+  );
 };
