@@ -1,54 +1,61 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+/* eslint-disable react/prop-types */
+import React, {
+  Children,
+  cloneElement,
+  createContext,
+  createElement,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 
-const ItThrowError = () => {
-  const [counter, setCounter] = useState(0);
+const s = {
+  style: {
+    fontSize: '60px',
+  },
+};
 
-  useEffect(() => {
-    if (counter > 3) {
-      throw new Error('testee');
-    }
-  }, [counter]);
+const TurmOnOffContext = createContext();
+
+const TurnOnAndOff = ({ children }) => {
+  const [isOn, setIsOn] = useState(false);
+  const onTurn = () => setIsOn((s) => !s);
 
   return (
-    <div onClick={() => setCounter((c) => c + 1)}>
-      Click to Increase {counter}
-    </div>
+    <TurmOnOffContext.Provider value={{ isOn, onTurn }}>
+      {children}
+    </TurmOnOffContext.Provider>
   );
 };
 
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false };
-  }
+const TurnedOn = ({ children }) => {
+  const { isOn, onTurn } = useContext(TurmOnOffContext);
+  return isOn ? children : null;
+};
 
-  static getDerivedStateFromError(error) {
-    // Update state so the next render will show the fallback UI.
-    return { hasError: true };
-  }
+const TurnedOff = ({ children }) => {
+  const { isOn, onTurn } = useContext(TurmOnOffContext);
+  return isOn ? null : children;
+};
 
-  componentDidCatch(error, errorInfo) {
-    // You can also log the error to an error reporting service
-    console.log(error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      // You can render any custom fallback UI
-      return <h1>Something went wrong.</h1>;
-    }
-
-    // eslint-disable-next-line react/prop-types
-    return this.props.children;
-  }
-}
+const TurnButton = ({ ...props }) => {
+  const { isOn, onTurn } = useContext(TurmOnOffContext);
+  return (
+    <button {...props} onClick={() => onTurn()}>
+      Turn {isOn ? 'OFF' : 'ON'}
+    </button>
+  );
+};
 
 export const Home = () => {
   return (
-    <div>
-      <ErrorBoundary>
-        <ItThrowError />
-      </ErrorBoundary>
-    </div>
+    <TurnOnAndOff>
+      <p>teste</p>
+      <TurnedOn>Coisas do on</TurnedOn>
+      <TurnedOff>Coisas do off</TurnedOff>
+      <TurnButton {...s} />
+    </TurnOnAndOff>
   );
 };
