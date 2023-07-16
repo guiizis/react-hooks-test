@@ -15,7 +15,7 @@ ReactDOM.render(
         <Menu />
         <Switch>
           <Route path="/" exact component={Home} />
-          <Route path="/abc" exact component={Abc} />
+          <Route path="/abc/:id" exact component={Abc} />
         </Switch>
       </BrowserRouter>
     </CounterContextProvider>

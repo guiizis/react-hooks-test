@@ -1,3 +1,7 @@
+import { useParams } from 'react-router-dom';
+
 export const Abc = () => {
-  return <h1>Testeeee</h1>;
+  const { id } = useParams();
+
+  return <h1>{id}</h1>;
 };

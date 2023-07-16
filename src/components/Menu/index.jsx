@@ -11,7 +11,7 @@ export const Menu = () => {
       }}
     >
       <Link to="/"> Go To Home </Link>
-      <Link to="/abc"> Go To ABC </Link>
+      <Link to="/abc/59"> Go To ABC </Link>
     </nav>
   );
 };
