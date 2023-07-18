@@ -7,6 +7,7 @@ import './styles/global-styles.css';
 import { Home } from './templates/Home';
 import { Abc } from './components/Abc';
 import { Menu } from './components/Menu';
+import { NotFound } from './components/404';
 
 ReactDOM.render(
   <React.StrictMode>
@@ -16,6 +17,7 @@ ReactDOM.render(
         <Switch>
           <Route path="/" exact component={Home} />
           <Route path="/abc/:id" exact component={Abc} />
+          <Route path="*" component={NotFound} />
         </Switch>
       </BrowserRouter>
     </CounterContextProvider>
